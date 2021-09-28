@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dogapi.css">
+    <title>Dog Api</title>
+</head>
+
+<body>
+    <h1>Machy Doggy</h1>
+    <h2>A Game by 200024763 for 5003 P1</h2>
+
+    <form id = 'types'></form>
+    <button id = 'previous'>Previous</button>
+    <button id = 'next'>Next</button>
+
+    <select id="difficulty" >
+        <option value="easy">Easy</option>
+        <option value="normal">Normal</option>
+        <option value="hard">Hard</option>
+    </select>
+
+
+    <button id = 'start'>Start</button>
+
+    <div id="timer"></div>
+
+
+    <div id = 'div1'></div>
+    <div id = 'div2'></div>
+    <div id = 'div3'></div>
+
+    <p id = 'pairs'></p>
+    
+    <p id = 'easyScore'></p>
+    <p id = 'normalScore'></p>
+    <p id = 'difficultScore'></p>
+
+
+</body>
+
+
+<script>
+
+    //set overall score which I assume is not achievable normally
+    var overallEasyScore = 10000;
+    var overallNormalScore = 10000;
+    var overallDifficultScore = 10000;
+    var pairsNum = 0;
+
+
+    var imgNum;
+    var startMinutes;
+
+    //get breeds
+    fetch('https://api.thedogapi.com/v1/breeds?attach_breed=0')
+    .then(response => response.json())
+    .then(breeds => {
+        
+        // get selected breeds
+        let selectedBreedId = [];
+        for(let a = 0; a < breeds.length; a++){
+            let input = document.createElement('input');
+            let label = document.createElement('label');
+
+            document.getElementById('types').appendChild(input);
+            input.type = 'checkbox';
+            input.id = `${breeds[a].id}`;
+
+            document.getElementById('types').appendChild(label);
+            label.for = `breed${a}`;
+            label.innerHTML = `${breeds[a].name}`
+
+            // get selected breeds and fix double click issue
+            let selectedBreedTag = document.getElementById(breeds[a].id);
+            selectedBreedTag.addEventListener('click', function () {
+                if(selectedBreedId.includes(breeds[a].id) == true){
+                    let index = selectedBreedId.indexOf(breeds[a].id);
+                    selectedBreedId.splice(index,1);
+                }else{
+                    selectedBreedId.push(breeds[a].id); 
+                }
+                //test: console.log(selectedBreedId)
+            })
+
+
+            //Start: set difficulties and run game and timer
+            document.getElementById('start').onclick = function () {
+
+                pairsNum = 0;
+
+                let difficulty = document.getElementById('difficulty').value;
+
+                if(difficulty == 'easy'){
+                    imgNum = 4;
+                    startMinutes = 1; 
+                }else if(difficulty == 'normal'){
+                    imgNum = 6;
+                    startMinutes = 2; 
+            
+                }else if(difficulty == 'hard'){
+                    imgNum = 9;
+                    startMinutes = 3; 
+                }
+                game();
+                
+                //countdown time
+
+                let interval = setInterval(timerCountdown, 1000);
+                let time = startMinutes*60;
+
+                function timerCountdown(){
+
+                    let minutes = Math.floor(time / 60);
+                    let seconds = Math.floor(time % 60);
+                    seconds = seconds < 10 ? '0' + seconds : seconds;
+
+                    document.getElementById('timer').innerHTML = `${minutes}: ${seconds}`;
+
+                    if (pairsNum == imgNum){
+                        document.getElementById('timer').innerHTML = `${minutes}: ${seconds} you win`;
+                        clearInterval(interval)
+                    }else if((minutes == 0) && (seconds == 0)){
+                        document.getElementById('timer').innerHTML = `${minutes}: ${seconds} time out`;
+                        clearInterval(interval)
+                    }else{
+                        time--;
+                    }
+                }            
+            }
+
+            
+
+            function game() {
+                //set random numbers for random img places
+                let orders = [];
+                let randomNum;
+
+                while(orders.length < imgNum*2){
+                    randomNum = Math.floor(Math.random()*imgNum*2);
+                    if(!orders.includes(randomNum)){
+                        orders.push(randomNum)
+                    };
+                }    
+
+                let orderedSources = [];
+                let sources = [];
+                let clickImgSrc = [];
+                let clickImgId = [];
+                let currentScore = 0;
+
+                document.getElementById('pairs').innerHTML = `Pairs Counter: ${pairsNum}`;
+
+                document.getElementById('div1').innerHTML = '';
+                document.getElementById('div2').innerHTML = '';
+                document.getElementById('div3').innerHTML = '';
+
+                //get the rigth imgs to fetch. 
+/*                 let urls = [];
+                    if(selectedBreedId.length == 0){
+                        let url = `https://api.thedogapi.com/v1/images/search?limit=${imgNum}` ;
+                        urls.push(url);
+
+                    }else if(selectedBreedId.length >= imgNum){
+                        for(let i = 0; i < imgNum; i ++ ){
+                            let url = `https://api.thedogapi.com/v1/images/search?breed_id=${selectedBreedId[i]}&limit=${imgNum}`;
+                            urls.push(url);
+                        }
+                    }else if((selectedBreedId.length != 0) && (selectedBreedId.length < imgNum)){
+                        let x = Math.floor(imgNum/selectedBreedId.length);
+                        let y = imgNum%selectedBreedId.length;
+
+                        while(x>0){
+                            for(let i = 0; i < selectedBreedId.length; i ++ ){
+                                let url = `https://api.thedogapi.com/v1/images/search?breed_id=${selectedBreedId[i]}&limit=${imgNum}`;
+                                urls.push(url);
+                            }
+                            x --;
+                        }
+
+                        for(; y > 0; y-- ){
+                            for(let i = 0; i < y; i ++ ){
+
+                                let url = `https://api.thedogapi.com/v1/images/search?breed_id=${selectedBreedId[i]}&limit=${imgNum}`;
+                                urls.push(url);
+                            }
+                        }
+
+                    }
+                
+                Promise.all(urls.map(url => fetch(url))) */
+
+               fetch((selectedBreedId.length == 0) 
+                        ? `https://api.thedogapi.com/v1/images/search?limit=${imgNum}` 
+                        : `https://api.thedogapi.com/v1/images/search?breed_id=${selectedBreedId[0]}&limit=${imgNum}`)
+                .then(response => response.json())
+                .then(images => {
+                    
+
+                //check if the imgs are enough
+                 if (images.length < imgNum){
+                    alert('There is not enough imgs for this breed.');
+                    return
+                } 
+
+                    //set zoomed random pics
+                    for(let i = 0; i < imgNum; i++){ orderedSources.push(images[i].url)};
+                        orderedSources = orderedSources.concat(orderedSources);
+                    for(let i = 0; i < imgNum*2; i++){
+                        sources.push(orderedSources[orders[i]]);
+
+                        //set default images
+                        let img = document.createElement('img');
+
+                        img.src = './default'
+                        img.id = `img${i}`;
+                        img.style.height = '200px';
+                        img.style.width = '200px';
+                        img.style.margin = '3pt';
+
+                        if(imgNum == 4){
+                            if(i < 4){
+                                document.getElementById('div1').appendChild(img);
+                            }else{
+                                document.getElementById('div2').appendChild(img);
+                            }
+                        }else if(imgNum == 9){
+                            if(i < 6){
+                                div1.appendChild(img);
+                            }else if( i > 11){
+                                div3.appendChild(img);
+                            }else{
+                                div2.appendChild(img);
+                            }
+                        }else if(imgNum == 6){
+                            if(i < 4){
+                                div1.appendChild(img);
+                            }else if( i > 7){
+                                div3.appendChild(img);
+                            }else{
+                                div2.appendChild(img);
+                            }
+                        }
+
+                        //change on click 
+                        img.onclick = function () {
+
+                            img.src = sources[i]; 
+                            clickImgSrc.push(sources[i]);
+                            //test console.log(clickImgSrc)
+                            clickImgId.push(`img${i}`);
+
+                            let clearArrays = function() {
+                                clickImgSrc.length = 0 ;
+                                clickImgId.length = 0;
+                            }
+
+                            if(clickImgId.length == 2){
+
+                                //forbidden the user click the same picture again to turn it over
+                                if((clickImgSrc[0] == clickImgSrc[1]) 
+                                    && (clickImgId[0] !== clickImgId[1])
+                                    && document.getElementById(clickImgId[0]).className !== 'same' 
+                                    && document.getElementById(clickImgId[1]).className !== 'same'){
+
+                                    clickImgId.forEach(id => {
+                                        document.getElementById(id).classList.add('same');
+                                    });
+
+                                    clearArrays();
+
+                                    // Track: pairs counter ++
+                                    pairsNum++;
+                                    document.getElementById('pairs').innerHTML = `Pairs Counter: ${pairsNum}`;
+
+                                }else if((document.getElementById(clickImgId[0]).className == 'same') 
+                                        || (document.getElementById(clickImgId[1]).className == 'same')){
+
+                                            if(document.getElementById(clickImgId[0]).className == 'same' 
+                                            && document.getElementById(clickImgId[1]).className !== 'same'){
+
+                                                setTimeout(function (){
+                                                    document.getElementById(clickImgId[1]).src = './default';
+                                                    clearArrays()
+                                                }, 500) 
+
+                                            }else if(document.getElementById(clickImgId[1]).className == 'same' 
+                                            && document.getElementById(clickImgId[0]).className !== 'same'){
+
+                                                setTimeout(function (){
+                                                    document.getElementById(clickImgId[0]).src = './default';                                                
+                                                    clearArrays();
+                                                }, 500) 
+
+                                            }else if(document.getElementById(clickImgId[1]).className == 'same' 
+                                            && document.getElementById(clickImgId[0]).className == 'same'){
+                                                clearArrays();
+                                            }
+
+                                }else{
+                                        clickImgId.forEach(id => {
+                                            setTimeout(function (){document.getElementById(id).src = './default';}, 500) 
+                                        });
+                                        document.getElementById(clickImgId[0])
+                                        clearArrays()        
+                                }
+
+                                // Track: Lowest pairs opened to win the game for each difficulty
+                                currentScore++;
+
+                                if(imgNum == 4){
+
+                                    if((pairsNum == imgNum)  && (currentScore < overallEasyScore)){
+                                        overallEasyScore = currentScore;
+                                        document.getElementById('easyScore').innerHTML = `Lowest Pairs Opened to Win the Game(Easy): ${overallEasyScore}`;
+                                    }else if((pairsNum == imgNum)  && (currentScore > overallEasyScore)){
+                                        document.getElementById('easyScore').innerHTML = `Lowest Pairs Opened to Win the Game: ${overallEasyScore}`;
+                                    }
+
+                                }else if(imgNum == 9){
+
+                                    if((pairsNum == imgNum)  && (currentScore < overallDifficultScore)){
+                                        overallDifficultScore = currentScore;
+                                        document.getElementById('difficultScore').innerHTML = `Lowest Pairs Opened to Win the Game(Difficult): ${overallDifficultScore}`;
+                                    }else if((pairsNum == imgNum)  && (currentScore > overallDifficultScore)){
+                                        document.getElementById('difficultScore').innerHTML = `Lowest Pairs Opened to Win the Game(Difficult): ${overallDifficultScore}`;
+                                    }
+
+                                }else if(imgNum == 6){
+                                    if((pairsNum == imgNum)  && (currentScore < overallNormalScore)){
+                                        overallNormalScore = currentScore;
+                                        document.getElementById('normalScore').innerHTML = `Lowest Pairs Opened to Win the Game(Normal): ${overallNormalScore}`;
+                                    }else if((pairsNum == imgNum)  && (currentScore > overallNormalScore)){
+                                        document.getElementById('normalScore').innerHTML = `Lowest Pairs Opened to Win the Game(Normal): ${overallNormalScore}`;
+                                    }
+                                }
+                            }
+
+
+
+
+
+                        }
+                    } 
+                });
+            }                
+
+
+
+        }
+
+
+
+
+        // set item pages
+
+                //hideAll()
+                let hideAll = function(){
+                    for(let x = 0; x < breeds.length; x++){
+                        document.getElementsByTagName('input')[x].hidden = true;
+                        document.getElementsByTagName('label')[x].hidden = true;
+                    }
+                }
+                hideAll();
+
+                // page number and item number 
+                let i = 0;
+                let j = 0; 
+
+                // goNextPage()
+                document.getElementById('next').addEventListener('click', function(){
+                    hideAll();
+                    goNextPage();
+                })
+
+                let goNextPage = function(){
+                    if(j < Math.ceil(breeds.length/10)){
+                        j++;
+                    //when press next at the last page 
+                    }else if(j = Math.ceil(breeds.length/10)){
+                        j = 18;
+                        i = 170;
+                    }
+
+                    for( ;i >= 0 && i < 10*j && i <= 171; i++ ){
+                        document.getElementsByTagName('input')[i].hidden = false;
+                        document.getElementsByTagName('label')[i].hidden = false;
+                    }
+                }
+                //for loading the first ten items
+                goNextPage();
+
+
+                // go to previous page
+                document.getElementById('previous').addEventListener('click', function(){
+
+                    hideAll();
+                    //when press previous at the first page 
+                    if(j > 1 && j <= Math.ceil(breeds.length/10)){
+                        j--;
+                    }else if(j = 1){
+                        i = 10;
+                    }
+
+                    for( i = 10*(j-1);i >= 0 && i < 10*j && i <= 171; i++ ){
+                        document.getElementsByTagName('input')[i].hidden = false;
+                        document.getElementsByTagName('label')[i].hidden = false;
+                    }
+
+                }) 
+
+
+
+    })
+
+
+
+</script>
+</html>

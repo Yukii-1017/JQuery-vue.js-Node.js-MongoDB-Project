@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gin Rummy</title>
+    <link href="index.css" rel="stylesheet"> 
+    <script src="client.js"></script>
+
+</head>
+<body>
+    <h1>Gin Rummy</h1>
+    <div id = "titles"></div>
+    <ul id = "list"></ul>
+    <div id = 'game-page'>
+        <div id="buttons"> 
+            <input type="button" id="startgame" class="btn" value="Start Game" onclick="startGame()">
+            <input type="button" id="game-list" class="btn" value ="Room List" onclick="getList()">
+        </div>
+    
+        <div id = "decks">
+            <div id = "player-deck"></div>
+            <span id = "stock-deck"></span>
+            <span id = "discard-deck"></span>
+        </div>
+    
+        <div id = 'gin-box'>
+            <input type="button" id="knock" class="btn" value ="Knock">
+            <input type="button" id="gin" class="btn" value ="Gin">
+        </div>
+
+    </div>
+
+    <div id = 'gin-page'>
+        <div id = 'deadwood' class = "dropzone">Deadwood</div>
+        <div id = "meld1" class = "dropzone" >Meld 1</div>
+        <div id = 'meld2' class = "dropzone" >Meld 2</div>
+        <div id = 'meld3' class = "dropzone" >Meld 3</div>
+        <input type="button" id="submit" class="btn" value ="Submit">
+        <span>
+            <input type="button" id="cancle" class="btn" value ="Cancle" onclick="cancleGin()">
+        </span>
+    </div>
+
+
+</body>
+</html>

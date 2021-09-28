@@ -1,0 +1,17 @@
+body {
+	color: #243f60;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	margin: 10pt 0 0.0001pt;
+	border: none;
+	padding: 3pt;
+	text-transform: uppercase;
+}
+
+h2 {
+	background: #4F81BD;
+	color: white;
+	letter-spacing: .75pt;
+}
+

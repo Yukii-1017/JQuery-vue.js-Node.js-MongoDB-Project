@@ -1,0 +1,35 @@
+body { 
+    margin: 30px;
+    justify-content: center; 
+ }
+
+ .dragcard, .card { 
+   width: 50px; 
+   height: 100px; 
+   padding: 10px;
+   border: solid 1px #808080;
+   background-color: red;
+   display: inline-block;
+   border-radius: 10px;
+
+   font-size: 14pt;
+   text-align: center;
+   color:black;
+   margin: 3px; 
+ }
+
+#gin-page{
+  visibility: hidden;
+}
+
+.dropzone{
+  font-size: 28pt;
+}
+
+#discard-deck .card{ 
+  background-color: blue; 
+}
+
+#stock-deck .card{
+  background-color: blue;  
+}
