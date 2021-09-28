@@ -1,5 +1,5 @@
-THIS IS THE README FOR ASSIGNMENT TWO OF GROUP 4 
-
+THIS IS THE README FOR ASSIGNMENT TWO OF **GROUP 4** 
+This is a group work project with another student in St Andrews. 
 
 STARTING THE SERVER: 
 
